@@ -48,6 +48,9 @@ class AdyenPayment: RCTEventEmitter {
         let amount = paymentDetails["amount"] as! [String : Any]
         let additionalData = paymentDetails["additionalData"] as? [String : Any]
         PaymentsData.amount = Payment.Amount(value: amount["value"] as! Int, currencyCode: amount["currency"] as! String)
+        PaymentsData.delivery = paymentDetails["delivery"] as! Int
+        PaymentsData.discount = paymentDetails["discount"] as! Int
+        PaymentsData.subtotal = paymentDetails["subtotal"] as! Int
         PaymentsData.reference = paymentDetails["reference"] as! String
         PaymentsData.countryCode = paymentDetails["countryCode"] as! String
         PaymentsData.returnUrl = paymentDetails["returnUrl"] as! String
@@ -134,9 +137,20 @@ class AdyenPayment: RCTEventEmitter {
             guard let paymentMethod = self.paymentMethods?.paymentMethod(ofType: ApplePayPaymentMethod.self) else { return }
             let appleComponent : [String:Any] = componentData["applepay"] as? [String:Any] ?? [:]
             guard appleComponent["apple_pay_merchant_id"] != nil else {return}
-            // let amt = NSDecimalNumber(string: String(format: "%.2f", Float((PaymentsData.amount.value) / 100)))
-            let amt = NSDecimalNumber(string: String(format: "%.2f", Float(PaymentsData.amount.value) / 100))
-            let applePaySummaryItems = [PKPaymentSummaryItem(label: "Total", amount: amt, type: .final)]
+
+            let subtotal = NSDecimalNumber(string: String(format: "%.2f", Float(PaymentsData.subtotal) / 100))
+            var applePaySummaryItems = [PKPaymentSummaryItem(label: "Subtotal", amount: subtotal, type: .final)]
+
+            if(PaymentsData.discount > 0){
+                let discount = NSDecimalNumber(string: String(format: "%.2f", (Float(PaymentsData.discount) / 100) * -1))
+                applePaySummaryItems.append(PKPaymentSummaryItem(label: "Discount", amount: discount, type: .final))
+            }
+            
+            let delivery = NSDecimalNumber(string: String(format: "%.2f", Float(PaymentsData.delivery) / 100))
+            applePaySummaryItems.append(PKPaymentSummaryItem(label: "Delivery", amount: delivery, type: .final))
+
+            let total = NSDecimalNumber(string: String(format: "%.2f", Float(PaymentsData.amount.value) / 100))
+            applePaySummaryItems.append(PKPaymentSummaryItem(label: "Total", amount: total, type: .final))
             
             let component = ApplePayComponent(paymentMethod: paymentMethod,payment:Payment(amount: PaymentsData.amount, countryCode: PaymentsData.countryCode),merchantIdentifier: appleComponent["apple_pay_merchant_id"] as! String,summaryItems: applePaySummaryItems)
             if(component != nil){

@@ -12,6 +12,9 @@ internal struct PaymentsData {
     static var amount : Payment.Amount = Payment.Amount(value: 0, currencyCode: "EUR")
     static var reference  : String = "Test Order Reference - iOS UIHost"
     static var countryCode : String = "FR"
+    static var delivery : Int = 0
+    static var subtotal : Int = 0
+    static var discount : Int = 0
     static var shopperLocale : String = "fr_FR"
     static var returnUrl: String = "ui-host://"
     static var shopperReference: String = ""
@@ -43,6 +46,9 @@ internal struct PaymentsRequest: Request {
         try container.encode("iOS", forKey: .channel)
         try container.encode(amount, forKey: .amount)
         try container.encode(PaymentsData.reference, forKey: .reference)
+        try container.encode(PaymentsData.discount, forKey: .discount)
+        try container.encode(PaymentsData.subtotal, forKey: .subtotal)
+        try container.encode(PaymentsData.delivery, forKey: .delivery)
         try container.encode(PaymentsData.countryCode, forKey: .countryCode)
         try container.encode(PaymentsData.returnUrl, forKey: .returnUrl)
         try container.encode(PaymentsData.shopperReference, forKey: .shopperReference)
@@ -59,6 +65,9 @@ internal struct PaymentsRequest: Request {
         case channel
         case countryCode
         case returnUrl
+        case subtotal
+        case discount
+        case delivery
         case shopperReference
         case shopperEmail
         case shopperLocale
