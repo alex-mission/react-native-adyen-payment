@@ -150,8 +150,8 @@ class AdyenPayment: RCTEventEmitter {
             let delivery = NSDecimalNumber(string: String(format: "%.2f", Float(PaymentsData.delivery) / 100))
             applePaySummaryItems.append(PKPaymentSummaryItem(label: "Delivery", amount: delivery, type: .final))
 
-            let totalName = "Total";
-            if(PaymentsData.merchantName){
+            var totalName = "Total";
+            if(PaymentsData.merchantName != ""){
                 totalName = PaymentsData.merchantName
             }
             let total = NSDecimalNumber(string: String(format: "%.2f", Float(PaymentsData.amount.value) / 100))
